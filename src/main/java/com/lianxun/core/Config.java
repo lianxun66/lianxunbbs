@@ -59,19 +59,6 @@ public class Config extends JFinalConfig {
 		
 	}                                   
 	public void configPlugin(Plugins me) {
-		DruidPlugin druidPlugin = new DruidPlugin(PropKit.get("master.database.jdbcUrl"), PropKit.get("master.database.user"), 		PropKit.get("master.database.password"));
-		WallFilter wall = new WallFilter();
-		wall.setDbType("mysql");
-		druidPlugin.addFilter(wall);
-		druidPlugin.addFilter(new StatFilter());
-
-		me.add(druidPlugin);
-		// 配置ActiveRecord插件
-		ActiveRecordPlugin arp = new ActiveRecordPlugin(druidPlugin);
-
-		me.add(arp);
-		// =================数据库到实体类的映射关系======================
-		arp.setShowSql(Boolean.parseBoolean(PropKit.get("showsql")));// 这句话就是ShowSql
 	}
 
 	public void configInterceptor(Interceptors me) {
