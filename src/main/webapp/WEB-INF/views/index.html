@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${common.title!}</title>
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="keywords" content="${common.keywords!}">
+<meta name="description" content="${common.description!}">
+@ layout("/common/link.html"){}
+</head>
+<body>
+	@ layout("/common/header.html"){} 
+	@ layout("/common/column.html"){}
+	<div class="layui-container">
+		<div class="layui-row layui-col-space15">
+			<div class="layui-col-md8">
+				<div class="fly-panel" style="margin-bottom: 0;">
+					<div class="fly-panel-title fly-filter">
+						<a href="" class="layui-this">全部</a>
+					</div>
+					<ul class="fly-list" id="noteListUL">
+						<script id="noteList" type="text/html">
+
+{{each notes as note}}
+   <li>
+  <a href="javascript:;" class="fly-avatar">
+    <img src="{{toIcon(note.icon,note.noteId)}}" alt="{{toNickname(note.nickname)}}">
+  </a>
+  <h2>
+    <a class="layui-badge">{{note.column}}</a>
+    <a href="/note/detail.html?noteId={{note.noteId}}">{{note.title}}</a>
+  </h2>
+  <div class="fly-list-info">
+     <a href="javascript:;" link>
+      <cite>{{toNickname(note.nickname)}}</cite>
+    </a>
+    <span>{{toTimeAgo(note.timestamp)}}</span>
+    <span class="fly-list-nums"> 
+      <i class="iconfont icon-pinglun1" title="评论"></i> {{note.commentcount}}
+    </span>
+  </div>
+</li>
+{{/each}}
+
+        </script>
+        
+					</ul>
+					<div style="text-align: center">
+						<div class="boxTools clearfix">
+							<div id="pageList"></div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	@ layout("/common/footer.html"){}
+</body>
+<script type="text/javascript">
+
+
+$(function(){
+	var pageNumber=getQueryString("pageNumber");
+	if (!pageNumber)pageNumber=1;
+	template.helper('toTimeAgo', function  (dateTimeStamp){
+		var minute = 1000 * 60;
+		var hour = minute * 60;
+		var day = hour * 24;
+		var halfamonth = day * 15;
+		var month = day * 30;
+		var now = new Date().getTime();
+		var diffValue = now - dateTimeStamp;
+		var monthC =diffValue/month;
+		var weekC =diffValue/(7*day);
+		var dayC =diffValue/day;
+		var hourC =diffValue/hour;
+		var minC =diffValue/minute;
+		if(monthC>=1){
+			result="" + parseInt(monthC) + "月前";
+		}
+		else if(weekC>=1){
+			result="" + parseInt(weekC) + "周前";
+		}
+		else if(dayC>=1){
+			result=""+ parseInt(dayC) +"天前";
+		}
+		else if(hourC>=1){
+			result=""+ parseInt(hourC) +"小时前";
+		}
+		else if(minC>=1){
+			result=""+ parseInt(minC) +"分钟前";
+		}else{
+			result="刚刚";
+		}
+		return result;
+	});
+	template.helper('toIcon', function (icon,noteId){
+		if(!icon){
+			  if(noteId){
+			  	icon="/res/images/avatar/"+noteId%10+".jpg";
+			  }else{
+				  icon="/res/images/avatar/0.jpg";
+			  }
+		  }
+		  return icon;
+	  });
+	template.helper('toNickname',function (nickname){
+		  if(!nickname){
+			  nickname="匿名用户";
+		  }
+		  return nickname;
+	  });
+	readNas(BBSAddress, "getBBSNote",'["nas",'+pageNumber+',10]',function(data){
+		  var result=JSON.parse(data.result);
+		  var notes=new Array(result.notes);
+		  var html = template('noteList',result); 
+		  $('#noteListUL').html(html); 
+		  layui.use('laypage', function(){
+			  var laypage = layui.laypage;
+			  //执行一个laypage实例
+			  laypage.render({
+			    elem: 'pageList' //注意，这里的 test1 是 ID，不用加 # 号
+			    ,count: result.total //数据总数，从服务端得到
+			    ,curr:pageNumber
+			    ,limit:10
+			    ,jump : function(obj, first) {
+					//obj包含了当前分页的所有参数，比如：
+					//首次不执行
+					if (!first) {
+						location.href="/index.html?pageNumber="+obj.curr;
+					}
+				}
+			  });
+			});
+	});
+	
+});
+
+</script>
+
+</html>

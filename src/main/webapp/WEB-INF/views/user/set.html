@@ -1,0 +1,195 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${common.title!}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="${common.keywords!}">
+  <meta name="description" content="${common.description!}">
+@ layout("/common/link.html"){}
+<style>
+		#uploadFile ~ span.layui-upload-choose{
+			display: none!important;
+		}
+    #uploadFile{
+      width: 94%;
+      text-align: center;
+      margin-bottom: 15px;
+      margin-left:6%
+    }
+    .file_info{
+      width: 94%;
+      margin-bottom: 20px;
+      margin-left:6%
+    }
+    .contentBox{
+      width: 60%;
+      margin: 20px auto 20px 40px;
+    }
+    .submitBtn{
+      margin-top: 20px;
+      margin-left: 6%;
+    }
+    </style>
+</head>
+<body>
+@ layout("/common/header.html"){}
+
+<div class="layui-container fly-marginTop fly-user-main">
+  <ul class="layui-nav layui-nav-tree layui-inline" lay-filter="user">
+    <li class="layui-nav-item layui-this">
+      <a href="set.html">
+        <i class="layui-icon">&#xe620;</i>
+        基本设置
+      </a>
+    </li>
+  </ul>
+
+  <div class="site-tree-mobile layui-hide">
+    <i class="layui-icon">&#xe602;</i>
+  </div>
+  <div class="site-mobile-shade"></div>
+  
+  <div class="site-tree-mobile layui-hide">
+    <i class="layui-icon">&#xe602;</i>
+  </div>
+  <div class="site-mobile-shade"></div>
+  
+  
+  <div class="fly-panel fly-panel-user" pad20>
+    <div class="layui-tab layui-tab-brief" lay-filter="user">
+      <ul class="layui-tab-title" id="LAY_mine">
+        <li class="layui-this" lay-id="info">我的资料</li>
+        <li lay-id="avatar">头像</li>
+      </ul>
+      <div class="layui-tab-content" style="padding: 20px 0;" id="edithtmlInfo">
+        <div class="layui-form layui-form-pane layui-tab-item layui-show">
+          <form method="post">
+          <p class="file_info">
+                         我的地址:  <span id="address"></span>
+                        </p>
+        
+           <div class="layui-form-item">
+              <label for="L_email" class="layui-form-label">手机</label>
+              <div class="layui-input-inline">
+                <input type="text" id="L_mobile" name="mobile" required lay-verify="phone" autocomplete="off" value="" class="layui-input">
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label for="L_email" class="layui-form-label">邮箱</label>
+              <div class="layui-input-inline">
+                <input type="text" id="L_email" name="email" required lay-verify="email" autocomplete="off" value="" class="layui-input">
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label for="L_username" class="layui-form-label">昵称</label>
+              <div class="layui-input-inline">
+                <input type="text" id="L_username" name="username" required lay-verify="required" autocomplete="off" value="" class="layui-input">
+              </div>
+              <div class="layui-inline">
+                <div class="layui-input-inline">
+                  <input type="radio" name="sex" value="0"  title="男">
+                  <input type="radio" name="sex" value="1"  title="女">
+                </div>
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label for="L_city" class="layui-form-label">城市</label>
+              <div class="layui-input-inline">
+                <input type="text" id="L_city" name="city" autocomplete="off" value="" class="layui-input">
+              </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+              <label for="L_sign" class="layui-form-label">签名</label>
+              <div class="layui-input-block">
+                <textarea placeholder="随便写些什么刷下存在感" id="L_sign"  name="sign" value=""autocomplete="off" class="layui-textarea" style="height: 80px;"></textarea>
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <button class="layui-btn" key="set-mine" lay-filter="*"id="submit" lay-submit>确认修改</button>
+            </div>
+          </div>
+          <div class="layui-form layui-form-pane layui-tab-item">
+            <div class="layui-form-item">
+              <div class="avatar-add">
+                <p>建议尺寸168*168，支持jpg、png、gif，最大不能超过50KB</p>
+                <button type="button" class="layui-btn upload-img">
+                  <i class="layui-icon">&#xe67c;</i>上传头像
+                </button>
+               <img id="editimguser" >
+                <span class="loading"></span>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+@ layout("/common/footer.html"){} 
+
+</body>
+<script src="/res/mods/user.js"></script>
+<script type="text/javascript">
+if($('.upload-img')[0]){
+    layui.use('upload', function(upload){
+      var avatarAdd = $('.avatar-add');
+		
+      upload.render({
+        elem: '.upload-img'
+        ,url: '/api/upload/'
+        ,size: 50
+        ,before: function(){
+          avatarAdd.find('.loading').show();
+        }
+        ,done: function(data){
+        	var args=new Array();
+        	args[6]=data.datas.url;
+        	sendNas(PersonAddress, "edit",JSON.stringify(args),function(data){
+   			 var txhash = data.txhash;
+   			 layer.msg("上传成功，请等待区块确认");
+   			 setTimeout(function(){
+   				location.reload();
+   				 },2000);
+   		  });
+          avatarAdd.find('.loading').hide();
+        }
+        ,error: function(){
+          avatarAdd.find('.loading').hide();
+        }
+      });
+    });
+  }
+$(function(){
+	
+	 $("#submit").click(function(){
+		 var mobile=$("#L_mobile").val();
+		 var email=$("#L_email").val();
+		 var nickname=$("#L_username").val();
+		 var city=$("#L_city").val();
+		 var info=$("#L_sign").val();
+		 var sex=$("input[name='sex']:checked").val();
+			var args=new Array();
+			args[0]=mobile;
+			args[1]=email;
+			args[2]=nickname;
+			args[3]=city;
+			args[4]=sex;
+			args[5]=info;
+		sendNas(PersonAddress, "edit",JSON.stringify(args),function(data){
+			 var txhash = data.txhash;
+			 layer.msg("提交成功，请等待区块确认");
+			 setTimeout(function(){
+				location.reload();
+				 },2000);
+			 
+		});
+	 });
+});
+</script>
+</html>

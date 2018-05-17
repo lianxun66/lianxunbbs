@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${common.title!}</title>
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="keywords" content="${common.keywords!}">
+<meta name="description" content="${common.description!}">
+@ layout("/common/link.html"){}
+</head>
+
+<body>
+	@ layout("/common/header.html"){} 
+	@ layout("/common/column.html"){}
+
+<div class="layui-container">
+  <div class="layui-row layui-col-space15">
+    <div class="layui-col-md8 content detail">
+      <div class="fly-panel detail-box" id="noteDetail">
+      	<script id="note" type="text/html">
+        <h1>{{title}}</h1>
+        <div class="fly-detail-info">
+          <span class="layui-badge layui-bg-green fly-detail-column">{{column}}</span>
+          <span class="fly-list-nums"> 
+            <a href="#comment"><i class="iconfont" title="回答">&#xe60c;</i>{{commentcount}}</a>
+          </span>
+        </div>
+        <div class="detail-about">
+          <a class="fly-avatar" href="javascript:;">
+            <img src="{{toIcon(icon,noteId)}}" alt="{{toNickname(nickname)}}">
+          </a>
+          <div class="fly-detail-user">
+            <a href="javascript:;" class="fly-link">
+              <cite>{{toNickname(nickname)}}</cite>
+            </a>
+          </div>
+          <div class="detail-hits" id="LAY_jieAdmin" data-id="{{noteId}}">
+            <span>{{toTimeAgo(timestamp)}}</span>  
+          </div>
+        </div>
+        <div class="detail-body photos">
+         {{content}}
+        </div>
+        </script>
+      </div>
+
+      <div class="fly-panel detail-box" id="flyReply">
+        <fieldset class="layui-elem-field layui-field-title" style="text-align: center;">
+          <legend>回帖</legend>
+        </fieldset>
+
+        <ul class="jieda" id="jieda" >
+        	<script id="comments" type="text/html">
+{{if comments.length>0}}
+{{each comments as comment}}
+          <li class="jieda-daan">
+            <a name="item"></a>
+            <div class="detail-about detail-about-reply">
+              <a class="fly-avatar" href="javascript:;">
+                <img src="{{toIcon(comment.icon,comment.timestamp)}}" alt="{{toNickname(comment.nickname)}} ">
+              </a>
+              <div class="fly-detail-user">
+                <a href="javascript:;" class="fly-link">
+                  <cite>{{toNickname(comment.nickname)}}</cite>
+                </a>
+                <span>(楼主)</span>
+              </div>
+
+              <div class="detail-hits">
+                <span>{{toTimeAgo(comment.timestamp)}}</span>
+              </div>
+            </div>
+			<div class="detail-body layui-text jieda-body photos">
+			{{comment.content}}
+			 </div>
+            <div class="jieda-reply">
+              <span type="reply">
+                <i class="iconfont icon-svgmoban53"></i>
+                回复
+              </span>
+            </div>
+          </li>
+{{/each}}
+{{else}}
+ <li class="fly-none">消灭零回复</li> 
+{{/if}}
+          </script>
+          <!-- 无数据时 -->
+          <!-- <li class="fly-none">消灭零回复</li> -->
+        </ul>
+        <div style="text-align: center">
+						<div class="boxTools clearfix">
+							<div id="pageList"></div>
+						</div>
+					</div>
+        <div class="layui-form layui-form-pane">
+          <form action="" method="post">
+            <div class="layui-form-item layui-form-text">
+              <a name="comment"></a>
+              <div class="layui-input-block">
+                <textarea id="L_content" name="content" required lay-verify="required" placeholder="请输入内容"  class="layui-textarea fly-editor" style="height: 150px;"></textarea>
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <input type="hidden" name="jid" >
+              <button class="layui-btn" lay-filter="*" lay-submit id="subComment">提交回复</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+@ layout("/common/footer.html"){}
+<script type="text/javascript">
+$(function(){
+	var noteId=getQueryString("noteId");
+	var pageNumber=getQueryString("pageNumber");
+	if (!pageNumber)pageNumber=1;
+	template.helper('toTimeAgo', function  (dateTimeStamp){
+		var minute = 1000 * 60;
+		var hour = minute * 60;
+		var day = hour * 24;
+		var halfamonth = day * 15;
+		var month = day * 30;
+		var now = new Date().getTime();
+		var diffValue = now - dateTimeStamp;
+		var monthC =diffValue/month;
+		var weekC =diffValue/(7*day);
+		var dayC =diffValue/day;
+		var hourC =diffValue/hour;
+		var minC =diffValue/minute;
+		if(monthC>=1){
+			result="" + parseInt(monthC) + "月前";
+		}
+		else if(weekC>=1){
+			result="" + parseInt(weekC) + "周前";
+		}
+		else if(dayC>=1){
+			result=""+ parseInt(dayC) +"天前";
+		}
+		else if(hourC>=1){
+			result=""+ parseInt(hourC) +"小时前";
+		}
+		else if(minC>=1){
+			result=""+ parseInt(minC) +"分钟前";
+		}else
+		result="刚刚";
+		return result;
+	});
+	template.helper('toIcon', function (icon,noteId){
+		if(!icon){
+			  if(noteId){
+			  	icon="/res/images/avatar/"+noteId%10+".jpg";
+			  }else{
+				  icon="/res/images/avatar/0.jpg";
+			  }
+		  }
+		  return icon;
+	  });
+	template.helper('toNickname',function (nickname){
+		  if(!nickname){
+			  nickname="匿名用户";
+		  }
+		  return nickname;
+	  });
+	readNas(BBSAddress, "getNote",'['+noteId+','+pageNumber+',10]',function(data){
+		 var result=JSON.parse(data.result);
+		 var html = template('note',result.note); 
+		 $('#noteDetail').html(html); 
+		 var commentHtml = template('comments',result); 
+		 $('#jieda').html(commentHtml); 
+		 $('.detail-body').each(function(){
+			    var othis = $(this), html = othis.html();
+			    othis.html(fly.content(html));
+			  });
+		  $('.jieda-reply span').on('click', function(){
+			    var othis = $(this), type = othis.attr('type');
+			    var li=othis.parents('li');
+			    var content=$("#L_content");
+			    var val = content.val();
+			      var aite = '\@'+ li.find('.fly-detail-user cite').text().replace(/\s/g, '');
+			      content.focus()
+			      if(val.indexOf(aite) !== -1) return;
+			      content.val(aite +' ' + val);
+			  });
+		  if(result.commentTotal>20){
+			  layui.use('laypage', function(){
+				  var laypage = layui.laypage;
+				  //执行一个laypage实例
+				  laypage.render({
+				    elem: 'pageList' //注意，这里的 test1 是 ID，不用加 # 号
+				    ,count: result.commentTotal //数据总数，从服务端得到
+				    ,curr:pageNumber
+				    ,limit:10
+				    ,jump : function(obj, first) {
+						//obj包含了当前分页的所有参数，比如：
+						//首次不执行
+						if (!first) {
+							location.href="/note/detail.html?noteId="+noteId+"&pageNumber="+obj.curr;
+						}
+					}
+				  });
+				});
+		  }
+		 
+	});
+	$("#subComment").click(function(){
+		var content=$("#L_content").val()+"";
+		var args=new Array();
+		args[0]=noteId;
+		args[1]=content;
+		args[2]=icon;
+		args[3]=nickname;
+		sendNas(BBSAddress, "comment",JSON.stringify(args),function(data){
+			 var txhash = data.txhash;
+			 layer.msg("提交成功，请等待区块确认");
+			 $("#L_content").val("");
+			 window.scrollBy(0,-10); 
+			 $(window).scrollTop(0);
+		});
+		return false;
+	});
+});
+
+</script>
+
+</body>
+</html>

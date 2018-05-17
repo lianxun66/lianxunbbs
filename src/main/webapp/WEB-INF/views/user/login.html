@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${common.title!}</title>
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="keywords" content="${common.keywords!}">
+<meta name="description" content="${common.description!}">
+@ layout("/common/link.html"){}
+  <style>
+		#uploadFile ~ span.layui-upload-choose{
+			display: none!important;
+		}
+    #uploadFile{
+      width: 94%;
+      text-align: center;
+      margin-bottom: 15px;
+      margin-left:6%
+    }
+    .file_info{
+      width: 94%;
+      margin-bottom: 20px;
+      margin-left:6%
+    }
+    .contentBox{
+      width: 60%;
+      margin: 20px auto 20px 40px;
+    }
+    .submitBtn{
+      margin-top: 20px;
+      margin-left: 6%;
+    }
+	</style>
+</head>
+
+<body>
+
+@ layout("/common/header.html"){} 
+
+<div class="layui-container fly-marginTop">
+  <div class="fly-panel fly-panel-user" pad20>
+		<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+		  <ul class="layui-tab-title">
+		    <li class="layui-this">登陆</li>
+		    <li ><a href="/user/reg.html">注册</a></li>
+		  </ul>
+		  <br />
+		  <div class="layui-tab-content">
+		    <div class="layui-tab-item layui-show">
+					<fieldset class="layui-elem-field ">
+					  <legend>您将用以下哪种方式登陆？</legend>
+					  <div class="layui-field-box">
+					    <div class="layui-tab layui-tab-card" lay-filter="test">
+							  <ul class="layui-tab-title">
+							    <li class="layui-this" lay-id="11">钱包文件 / 钱包密码</li>
+							    <li lay-id="22">钱包JSON / 钱包密码</li>
+							    <li lay-id="33">私钥</li>
+							  </ul>
+							  <div class="layui-tab-content">
+							    <div class="layui-tab-item layui-show">
+                    <div class="contentBox">
+                        <button type="button" class="layui-btn" id="uploadFile">
+                          选择钱包文件...
+                        </button>
+                        <p class="file_info">
+                          <span id="file_name"></span>
+                        </p>
+                        <div class="layui-form-item layui-form">
+                          <label class="layui-form-label">输入密码</label>
+                          <div class="layui-input-block">
+                            <input type="password" name="password" required  lay-verify="required" placeholder="你的钱包被加密，请输入密码" autocomplete="off" id="filepassword" class="layui-input">
+                          </div>
+                        </div> 
+                        <button class="layui-btn submitBtn" id="filepw">解锁</button>
+                    </div>
+							    </div>
+							    <div class="layui-tab-item">
+                      <div class="contentBox">
+                          <div class="layui-form-item layui-form">
+                            <label class="layui-form-label">钱包JSON</label>
+                            <div class="layui-input-block">
+                                <textarea name="desc" placeholder="钱包JSON内容" id="jsonstr"class="layui-textarea"></textarea>
+                            </div>
+                          </div> 
+                          <div class="layui-form-item layui-form">
+                            <label class="layui-form-label">输入密码</label>
+                            <div class="layui-input-block">
+                              <input type="password" name="password" required  lay-verify="required" placeholder="请输入密码" autocomplete="off" id="jsonpassword" class="layui-input">
+                            </div>
+                          </div> 
+                          <button class="layui-btn submitBtn" id="jsonpw">解锁</button>
+                      </div>
+                  </div>
+							    <div class="layui-tab-item">
+                      <div class="contentBox">
+                          <div class="layui-form-item layui-form">
+                            <label class="layui-form-label">您的私钥</label>
+                            <div class="layui-input-block">
+                                <textarea name="desc" placeholder="请输入您的私钥" id="privateKeyStr"class="layui-textarea"></textarea>
+                            </div>
+                          </div> 
+                          <button class="layui-btn submitBtn" id="private">解锁</button>
+                      </div>
+                  </div>
+							  </div>
+							</div>
+					  </div>
+					</fieldset>
+		    </div>
+		  </div>
+		</div> 
+  </div>
+</div>
+@ layout("/common/footer.html"){}
+<script>
+
+var keyString = '';
+
+layui.use('upload', function(){
+  var upload = layui.upload;
+   
+  //执行实例
+  var uploadInst = upload.render({
+    elem: '#uploadFile' //绑定元素
+    ,url: '' //上传接口
+    ,accept: 'file' 
+    ,auto:false
+    ,choose:function(obj){
+    	//将每次选择的文件追加到文件队列
+    	var files = obj.pushFile();
+    	//预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+   		obj.preview(function(index, file, result){
+        var file_name = document.getElementById('file_name');
+        file_name.innerHTML = file.name;
+	      var reader = new FileReader();//新建一个FileReader
+	    	reader.readAsText(file, "UTF-8");//读取文件 
+	    	reader.onload = function(evt){ //读取完文件之后会回来这里
+          keyString = evt.target.result; // 读取文件内容
+          console.log(keyString);
+       	}
+    	}); 
+    }
+    ,error: function(){
+    }
+  });
+});
+$("#filepw").click(function(){
+	var filepassword=$("#filepassword").val();
+	if(!keyString){
+		layer.msg("请选择钱包文件！");
+		return;
+	}
+	try{
+		account.fromKey(keyString, filepassword);
+	}catch (e) {
+		console.log(e);
+		layer.msg("钱包文件或密码错误，请重新尝试！");
+		return;
+	}
+	loginsuccess();
+});
+$("#jsonpw").click(function(){
+	keyString=$("#jsonstr").val();
+	var filepassword=$("#jsonpassword").val();
+	if(!keyString){
+		layer.msg("请输入钱包JSON！");
+		return;
+	}
+	try{
+		account.fromKey(keyString, filepassword);
+	}catch (e) {
+		console.log(e);
+		layer.msg("钱包JSON或密码错误，请重新尝试！");
+		return;
+	}
+	loginsuccess();
+});
+$("#private").click(function(){
+	var privateKeyStr=$("#privateKeyStr").val();
+	if(!privateKeyStr){
+		layer.msg("请输入钱包私钥！");
+		return;
+	}
+	account=new Account(privateKeyStr);
+	loginsuccess();
+});
+function loginsuccess(){
+	var privateKey=account.getPrivateKeyString();
+	 setStorage("privateKey",privateKey);
+	 layer.msg("登录成功");
+	 setTimeout(function(){
+		 window.history.back(-1); 
+		 },2000);
+}
+</script>
+
+</body>
+</html>

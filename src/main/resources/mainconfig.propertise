@@ -1,0 +1,8 @@
+devMode = true
+
+
+master.database.jdbcUrl = jdbc:mysql://127.0.0.1:3306/bh_scan?characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+master.database.user=root
+master.database.password=shanshan33
+devMode = true
+showsql=true
