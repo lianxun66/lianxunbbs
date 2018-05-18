@@ -44,20 +44,8 @@
 	    save_link.download = name;  
 	    fake_click(save_link);  
 	}  
-  function setStorage(key,value){
-	  if (window.localStorage) {
-		    localStorage.setItem(key, value);	
-		} else {
-		    Cookie.write(key, value);	
-		}
-  }
-  function getStorage(key){
-	  if (window.localStorage) {
-		  return  localStorage.getItem(key);	
-		} else {
-			return Cookie.read(key);	
-		}
-  }
+ 
+  
   function deleteStorage(key){
 	  if (window.localStorage) {
 		  return  localStorage.removeItem(key);	

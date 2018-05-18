@@ -1,7 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   <display-name>lianxun</display-name>
+  <welcome-file-list>  
+    <welcome-file>index.html</welcome-file>  
+  </welcome-file-list>  
  <filter>
+ 	<filter>
+		<filter-name>cache-filter</filter-name>
+		<filter-class>com.lianxun.filter.CacheFilter</filter-class>
+		<!-- 配置要缓存的web资源以及缓存时间，以小时为单位 -->
+	      <init-param>
+	          <param-name>css</param-name>
+	          <param-value>7</param-value>
+	      </init-param>
+	      <init-param>
+	          <param-name>html</param-name>
+	          <param-value>10</param-value>
+	      </init-param>
+	      <init-param>
+	          <param-name>jpg</param-name>
+	          <param-value>30</param-value>
+	      </init-param>
+	      <init-param>
+	          <param-name>js</param-name>
+	          <param-value>7</param-value>
+	      </init-param>
+	      <init-param>
+	          <param-name>png</param-name>
+	          <param-value>30</param-value>
+	      </init-param>
+	      <init-param>
+	          <param-name>gif</param-name>
+	          <param-value>30</param-value>
+	      </init-param>
+	      <init-param>
+	          <param-name>jpeg</param-name>
+	          <param-value>30</param-value>
+	      </init-param>
+	</filter>
+  <filter-mapping>
+		<filter-name>cache-filter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>cache-filter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>cache-filter</filter-name>
+		<url-pattern>*.html</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>cache-filter</filter-name>
+		<url-pattern>*.jpg</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>cache-filter</filter-name>
+		<url-pattern>*.jpeg</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>cache-filter</filter-name>
+		<url-pattern>*.png</url-pattern>
+	</filter-mapping>
     <filter-name>jfinal</filter-name>
     <filter-class>com.jfinal.core.JFinalFilter</filter-class>
     <init-param>
@@ -11,6 +71,6 @@
   </filter>
   <filter-mapping>
     <filter-name>jfinal</filter-name>
-    <url-pattern>*</url-pattern>
+    <url-pattern>/*</url-pattern>
   </filter-mapping>
 </web-app>

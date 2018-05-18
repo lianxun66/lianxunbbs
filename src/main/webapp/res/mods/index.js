@@ -5,12 +5,10 @@
  */
  var fly;
 
-layui.define(['layer', 'laytpl', 'form', 'element', 'upload', 'util'], function(exports){
+layui.define(['layer', 'element','upload', 'util'], function(exports){
   
   var $ = layui.jquery
   ,layer = layui.layer
-  ,laytpl = layui.laytpl
-  ,form = layui.form
   ,element = layui.element
   ,upload = layui.upload
   ,util = layui.util
@@ -37,52 +35,12 @@ layui.define(['layer', 'laytpl', 'form', 'element', 'upload', 'util'], function(
   };
 
 
-  //数字前置补零
-  layui.laytpl.digit = function(num, length, end){
-    var str = '';
-    num = String(num);
-    length = length || 2;
-    for(var i = num.length; i < length; i++){
-      str += '0';
-    }
-    return num < Math.pow(10, length) ? str + (num|0) : num;
-  };
-  
+
    fly = {
 	 
-    //Ajax
-    json: function(url, data, success, options){
-      var that = this, type = typeof data === 'function';
-      
-      if(type){
-        options = success
-        success = data;
-        data = {};
-      }
-
-      options = options || {};
-
-      return $.ajax({
-        type: options.type || 'post',
-        dataType: options.dataType || 'json',
-        data: data,
-        url: url,
-        success: function(res){
-          if(res.status === 0) {
-            success && success(res);
-          } else {
-            layer.msg(res.msg || res.code, {shift: 6});
-            options.error && options.error();
-          }
-        }, error: function(e){
-          layer.msg('请求异常，请重试', {shift: 6});
-          options.error && options.error(e);
-        }
-      });
-    }
     
     //计算字符长度
-    ,charLen: function(val){
+    charLen: function(val){
       var arr = val.split(''), len = 0;
       for(var i = 0; i <  val.length ; i++){
         arr[i].charCodeAt(0) < 299 ? len++ : len += 2;
@@ -307,55 +265,6 @@ layui.define(['layer', 'laytpl', 'form', 'element', 'upload', 'util'], function(
     
   };
 
-  //签到
-  var tplSignin = ['{{# if(d.signed){ }}'
-    ,'<button class="layui-btn layui-btn-disabled">今日已签到</button>'
-    ,'<span>获得了<cite>{{ d.experience }}</cite>飞吻</span>'
-  ,'{{# } else { }}'
-    ,'<button class="layui-btn layui-btn-danger" id="LAY_signin">今日签到</button>'
-    ,'<span>可获得<cite>{{ d.experience }}</cite>飞吻</span>'
-  ,'{{# } }}'].join('')
-  ,tplSigninDay = '已连续签到<cite>{{ d.days }}</cite>天'
-
-  ,signRender = function(data){
-    laytpl(tplSignin).render(data, function(html){
-      elemSigninMain.html(html);
-    });
-    laytpl(tplSigninDay).render(data, function(html){
-      elemSigninDays.html(html);
-    });
-  }
-
-  ,elemSigninHelp = $('#LAY_signinHelp')
-  ,elemSigninTop = $('#LAY_signinTop')
-  ,elemSigninMain = $('.fly-signin-main')
-  ,elemSigninDays = $('.fly-signin-days');
-  
-  if(elemSigninMain[0]){
-    /*
-    fly.json('/sign/status', function(res){
-      if(!res.data) return;
-      signRender.token = res.data.token;
-      signRender(res.data);
-    });
-    */
-  }
-  $('body').on('click', '#LAY_signin', function(){
-    var othis = $(this);
-    if(othis.hasClass(DISABLED)) return;
-
-    fly.json('/sign/in', {
-      token: signRender.token || 1
-    }, function(res){
-      signRender(res.data);
-    }, {
-      error: function(){
-        othis.removeClass(DISABLED);
-      }
-    });
-
-    othis.addClass(DISABLED);
-  });
 
  
 
@@ -374,39 +283,6 @@ layui.define(['layer', 'laytpl', 'form', 'element', 'upload', 'util'], function(
   }
 
 
-  //搜索
-  $('.fly-search').on('click', function(){
-    layer.open({
-      type: 1
-      ,title: false
-      ,closeBtn: false
-      //,shade: [0.1, '#fff']
-      ,shadeClose: true
-      ,maxWidth: 10000
-      ,skin: 'fly-layer-search'
-      ,content: ['<form action="http://cn.bing.com/search">'
-        ,'<input autocomplete="off" placeholder="搜索内容，回车跳转" type="text" name="q">'
-      ,'</form>'].join('')
-      ,success: function(layero){
-        var input = layero.find('input');
-        input.focus();
-
-        layero.find('form').submit(function(){
-          var val = input.val();
-          if(val.replace(/\s/g, '') === ''){
-            return false;
-          }
-          input.val('site:layui.com '+ input.val());
-      });
-      }
-    })
-  });
-
-  //新消息通知
-  fly.newmsg();
-
-
-
   //点击@
   $('body').on('click', '.fly-aite', function(){
     var othis = $(this), text = othis.text();
@@ -420,27 +296,6 @@ layui.define(['layer', 'laytpl', 'form', 'element', 'upload', 'util'], function(
     });
   });
 
-  //表单提交
-  form.on('submit(*)', function(data){
-    var action = $(data.form).attr('action'), button = $(data.elem);
-    fly.json(action, data.field, function(res){
-      var end = function(){
-        if(res.action){
-          location.href = res.action;
-        } else {
-          fly.form[action||button.attr('key')](data.field, data.form);
-        }
-      };
-      if(res.status == 0){
-        button.attr('alert') ? layer.alert(res.msg, {
-          icon: 1,
-          time: 10*1000,
-          end: end
-        }) : end();
-      };
-    });
-    return false;
-  });
 
   //加载特定模块
   if(layui.cache.page && layui.cache.page !== 'index'){

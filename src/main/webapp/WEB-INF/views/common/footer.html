@@ -41,6 +41,13 @@ layui.config({
 		  return nickname;
 	  });
 	var layuishowId;
+	function getStorage(key){
+		  if (window.localStorage) {
+			  return  localStorage.getItem(key);	
+			} else {
+				return Cookie.read(key);	
+			}
+	  }
 $(function(){
 	  if(getStorage("privateKey")){
 		 account=new Account(getStorage("privateKey"));

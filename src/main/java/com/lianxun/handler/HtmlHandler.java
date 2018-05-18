@@ -21,7 +21,6 @@ public class HtmlHandler extends Handler{
 		}else if(target.equals("/user/reg.html")){
 			target="/user/reg";
 		}
-		
 		next.handle(target, request, response, isHandled);
 	}
 

@@ -28,7 +28,7 @@ import com.lianxun.core.controller.UserController;
 import com.lianxun.handler.HtmlHandler;
 
 public class Config extends JFinalConfig {
-	
+	public static GroupTemplate groupTemplate;
 	
 	public static void main(String[] args) {
 		JFinal.start("src/main/webapp", 81, "/",5);
@@ -39,7 +39,7 @@ public class Config extends JFinalConfig {
 		me.setEncoding("utf-8");
 		JFinal3BeetlRenderFactory renderFactory = new JFinal3BeetlRenderFactory();
 		renderFactory.config();
-		GroupTemplate groupTemplate = renderFactory.groupTemplate;
+		 groupTemplate = renderFactory.groupTemplate;
 		Map<String, Object> shared = new HashMap<String, Object>();
 		Map<String, Object> common = new HashMap<String, Object>();
 		common.put("keywords", "链讯,去中心化论坛,DAPP论坛,区块链新生态");
@@ -53,8 +53,8 @@ public class Config extends JFinalConfig {
 
 	public void configRoute(Routes me) {
 		me.add("/",IndexController.class);
-		me.add("/note",NoteController.class);
-		me.add("/user",UserController.class);
+//		me.add("/note",NoteController.class);
+//		me.add("/user",UserController.class);
 		me.add("/api",ApiController.class);
 		
 	}                                   
@@ -65,7 +65,7 @@ public class Config extends JFinalConfig {
 	}
 	
 	public void configHandler(Handlers me) {
-		me.add(new HtmlHandler());
+	//	me.add(new HtmlHandler());
 	}
 	@Override
 	public void afterJFinalStart() {

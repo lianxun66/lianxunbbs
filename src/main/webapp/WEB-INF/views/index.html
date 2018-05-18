@@ -116,7 +116,7 @@ $(function(){
 		  var result=JSON.parse(data.result);
 		  var notes=new Array(result.notes);
 		  var html = template('noteList',result); 
-		  $('#noteListUL').html(html); 
+		  layui.$('#noteListUL').html(html); 
 		  layui.use('laypage', function(){
 			  var laypage = layui.laypage;
 			  //执行一个laypage实例
